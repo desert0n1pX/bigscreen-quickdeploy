@@ -1,11 +1,3 @@
-```
-docker build -t quickdeploy:local .
-docker run --privileged --rm -v .:/build quickdeploy:local
-
-rm img*
-losetup -d /dev/loop0
-```
-
 # Bigscreen Quick-Deploy
 
 This repository contains scripts for the rapid deployment of Archlinux with plasma-bigscreen. Its intended for devices like the Intel NUC but can be used on any UEFI capable x86_64 computer.
