@@ -90,7 +90,7 @@ If you'd prefer to use an arch-iso to directly install the new system you can al
 
 #### Getting ready
 
-You should obtain an arch-iso image and boot it with the new system. For more information you can reference the (Archlinux Website)[https://archlinux.org/download/].
+You should obtain an arch-iso image and boot it with the new system. For more information you can reference the [Archlinux Website](https://archlinux.org/download/).
 
 After booting the iso you should install the dependencies:
 ```
@@ -99,7 +99,7 @@ root@archiso ~# pacman -Syy qemu-img git
 
 You can then clone this repo:
 ```
-git clone https://github.com/desert0n1/bigscreen-deploy.git
+git clone https://github.com/desert0n1pX/bigscreen-quickdeploy.git
 ```
 
 #### Installing
