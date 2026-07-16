@@ -1,0 +1,13 @@
+# mkinitcpio preset file for the 'linux-lts' package
+
+ALL_kver="/boot/vmlinuz-linux-lts"
+
+PRESETS=('default' 'fallback')
+
+default_config="/etc/mkinitcpio.conf.d/default.conf"
+default_uki="/efi/EFI/PlasmaBigscreen/arch-linux-lts.efi"
+default_options="--cmdline /boot/cmdline/default"
+
+fallback_config="/etc/mkinitcpio.conf.d/fallback.conf"
+fallback_uki="/efi/EFI/PlasmaBigscreen/arch-linux-lts-fallback.efi"
+fallback_options="--cmdline /boot/cmdline/fallback"

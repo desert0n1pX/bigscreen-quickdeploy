@@ -1,0 +1,15 @@
+[Unit]
+Description=Autoload input-remapper profiles for new devices
+After=input-remapper.service 
+Requires=input-remapper.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=bash /opt/mediabox/scripts/autoload-input.sh
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

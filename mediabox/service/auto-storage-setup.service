@@ -1,0 +1,11 @@
+[Unit]
+Description=Autosetup this device
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=bash /opt/mediabox/scripts/auto-storage-setup.sh
+
+[Install]
+WantedBy=default.target
