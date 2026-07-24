@@ -165,3 +165,8 @@ This image is configured to use the [Chaotic AUR](https://aur.chaotic.cx/) for e
 Packagekit is also installed allowing you to use the `Discover` appstore to manage both system and flatpak packages, although it is recommended that you only use it for flatpaks.
 
 Gear Lever is also installed allowing you to "install" appimages and automatically keep them up-to-date given that `topgrade` or the updater script is run.
+
+## Other Notes
+
+### genfstab
+The normal `genfstab` doesn't work in docker so this repo contains a patch for it.

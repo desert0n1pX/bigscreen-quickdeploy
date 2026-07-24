@@ -1,0 +1,10 @@
+246,247c246,247
+<   label=$(lsblk -rno LABEL "$1" 2>/dev/null)
+<   uuid=$(lsblk -rno UUID "$1" 2>/dev/null)
+---
+>   label=$(blkid "$1" -s LABEL -o export | grep "LABEL=" | sed -e "s/LABEL=//g" | tail -n1)
+>   uuid=$(blkid "$1" -s UUID -o export | grep "UUID=" | sed -e "s/UUID=//g" | tail -n1)
+268c268
+<       [[ $bytag ]] && spec=$(lsblk -rno "$bytag" "$1" 2>/dev/null)
+---
+>       [[ $bytag ]] && spec=$(blkid "$1" -s "$bytag" -o export | grep "$bytag=" | sed -e "s/$bytag=//g" | tail -n1)
