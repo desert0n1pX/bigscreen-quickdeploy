@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Icon=input-keyboard-virtual-show-symbolic
+Name=Toggle Virtual Keyboard
+Name[en]=Toggle Virtual Keyboard
+Name[en_US]=Toggle Virtual Keyboard
+Name[en_US.UTF-8]=Toggle Virtual Keyboard
+Comment=Toggle showing virtual on touch/pen input or any input method
+Comment[en]=Toggle showing virtual on touch/pen input or any input method
+Comment[en_US]=Toggle showing virtual on touch/pen input or any input method
+Comment[en_US.UTF-8]=Toggle showing virtual on touch/pen input or any input method
+Exec=bash /opt/mediabox-scripts/setvtkbd.sh toggle ; sleep 3
+PrefersNonDefaultGPU=false
+Hidden=false
+NoDisplay=false
+StartupNotify=false
+Terminal=true
+Categories=Settings;System

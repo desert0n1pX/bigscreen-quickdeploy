@@ -7,7 +7,7 @@ Requires=input-remapper.service
 Type=simple
 User=root
 Group=root
-ExecStart=bash /opt/mediabox/scripts/autoload-input.sh
+ExecStart=bash /opt/mediabox-scripts/autoload-input.sh
 Restart=on-failure
 RestartSec=3
 

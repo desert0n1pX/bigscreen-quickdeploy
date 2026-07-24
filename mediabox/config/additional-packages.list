@@ -1,1 +1,1 @@
-flatpak konsole base-devel git tmux dolphin sddm libcec plasma plasma-bigscreen kdeconnect firewalld firefox chaotic-aur/input-remapper chaotic-aur/gearlever chaotic-aur/ungoogled-chromium-bin
+base-devel dolphin firefox firewalld flatpak git kdeconnect konsole libcec packagekit-qt6 plasma plasma-bigscreen sddm tmux topgrade chaotic-aur/gearlever chaotic-aur/input-remapper chaotic-aur/ungoogled-chromium-bin

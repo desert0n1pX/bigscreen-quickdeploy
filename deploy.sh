@@ -462,8 +462,8 @@ mountDevice() {
 registerStep
 installSystem() {
     pacstrap -K "${1}" $(cat "${SOURCE}/mediabox/config/core-packages.list")
-    cp -r "${SOURCE}/mediabox" "${1}/opt/"
-    arch-chroot "${1}" bash /opt/mediabox/scripts/chaotic.sh
+    cat "${SOURCE}/mediabox/scripts/chaotic.sh" | arch-chroot "${1}" bash
+
     arch-chroot "${1}" pacman -Sy --noconfirm  --asdeps $(cat "${SOURCE}/mediabox/config/non-default-dependancies.list")
     arch-chroot "${1}" pacman -Sy --noconfirm           $(cat "${SOURCE}/mediabox/config/additional-packages.list")
     arch-chroot "${1}" pacman -Scc --noconfirm
@@ -512,10 +512,31 @@ User=${USER}
 Session=plasma-bigscreen-wayland
 EOF
 
-    cp "${1}/opt/mediabox/service/auto-storage-setup.service" "${1}/opt/mediabox/service/input-remapper-loader.service" "${1}/etc/systemd/system/"
+    arch-chroot "${1}" systemctl enable bluetooth.service NetworkManager.service apparmor.service firewalld.service input-remapper.service
 
-    arch-chroot "${1}" systemctl enable bluetooth.service NetworkManager.service apparmor.service firewalld.service auto-storage-setup.service input-remapper.service input-remapper-loader.service
+}
 
+# Configure the install of custom files and scripts
+#
+# Arg1: Mountpoint
+# Return: None
+registerStep
+configCustom() {
+    # Copy all scripts
+    cp -r "${SOURCE}/mediabox/scripts" "${1}/opt/mediabox-scripts"
+    chmod 555 "${1}/opt/mediabox-scripts/"*
+
+    # Copy all service files
+    cp "${SOURCE}/mediabox/service/"*.service "${1}/etc/systemd/system/"
+
+    # Copy topgrade config
+    cp "${SOURCE}/mediabox/config/topgrade.toml" "${1}/etc/"
+
+    # Copy desktop files
+    cp "${SOURCE}/mediabox/config/"*.desktop "${1}/usr/share/applications/"
+
+    # Enable custom services
+    arch-chroot "${1}" systemctl enable auto-storage-setup.service input-remapper-loader.service
 }
 
 
@@ -526,11 +547,11 @@ EOF
 # Return: None
 registerStep
 configKernel() {
-    ### Boot process
+    ### Remove unused initramfs
     rm "${1}/boot/initramfs-linux-lts.img"
-    mv "${1}/etc/mkinitcpio.d/linux-lts.preset" "${1}/etc/mkinitcpio.d/linux-lts.default"
 
     # Linux preset
+    mv "${1}/etc/mkinitcpio.d/linux-lts.preset" "${1}/etc/mkinitcpio.d/linux-lts.default"
     cp "${SOURCE}/mediabox/boot/linux-lts.preset" "${1}/etc/mkinitcpio.d/linux-lts.preset"
 
     # Initcpio main config
@@ -656,6 +677,9 @@ main () {
 
     incrementStep "Configuring system"
     configSystem "$__MOUNTPOINT"
+
+    incrementStep "Configuring Custom Scripts"
+    configCustom "$__MOUNTPOINT"
 
     incrementStep "Configuring kernel and boot process"
     configKernel "$__MOUNTPOINT" "$__PART2_UUID"

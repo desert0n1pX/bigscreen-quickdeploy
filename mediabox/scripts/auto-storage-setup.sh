@@ -9,7 +9,8 @@ SWAPFILE=/swapfile
 main() {
 
     # Warning
-    bash -c 'while true ; do wall "Do not poweroff! Building boot images... Please wait for automatic system reboot..." ; sleep 5 ; done' &
+    _WARNING="Do not poweroff! Building boot images... Please wait for automatic system reboot..."
+    bash -c "while true ; do wall ""$_WARNING"" ; echo ""$_WARNING"" > /dev/tty1 ; sleep 5 ; done" &
 
     # Expand filesystem
     adjRootSize

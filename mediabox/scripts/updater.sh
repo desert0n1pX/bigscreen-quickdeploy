@@ -5,7 +5,7 @@ COUNTDOWN=10
 
 echo "Using updater script."
 
-topgrade
+topgrade --config /etc/topgrade.toml
 
 echo "Topgrade exited with $?"
 
