@@ -105,7 +105,7 @@ You should obtain an arch-iso image and boot it with the new system. For more in
 
 After booting the iso you should install the dependencies:
 ```
-root@archiso ~# pacman -Syy qemu-img git
+root@archiso ~# pacman -Syy git lsof qemu-img
 ```
 
 You can then clone this repo:
@@ -136,7 +136,7 @@ At first boot you will be presented with a black screen and a TTY. The image wil
 
 ### Application Menu
 
-There seems to be an [unfixed bug with Plasma](https://www.reddit.com/r/kde/comments/1n49jq2/new_desktop_files_are_not_added_are_invisible_in/) that prevents the custom desktop files from being shown in the application menu. You are however able to search for them. After opening, they will appear in the recently used apps section. For this image/install the affected apps/shortcuts are as follows:
+Plasma Bigscreen seems to hide applications that run in the terminal. If you want to make your own application launchers you should set `Terminal=false` or "Run in terminal" to false and set the program as "/usr/bin/konsole -e /path/to/script" or `Exec=/usr/bin/konsole -e /path/to/script`. This image provides the following application shortcuts:
 
 ```
 Update System (Update the entire system then reboot)

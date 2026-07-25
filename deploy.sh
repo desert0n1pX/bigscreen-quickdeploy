@@ -309,7 +309,7 @@ else
     then
         echo "You have chosen to install to \"$DEVICE\"."
         echo "THIS WILL COMPLETELY DESTROY ALL EXISTING DATA ON \"$DEVICE\"!"
-        echo "To confirm you must type the following phrase in all caps:"
+        echo "To confirm you must type the following phrase in all caps (except device name):"
         echo "i want to destroy all data on $DEVICE"
 
         read RESPONSE

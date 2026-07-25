@@ -34,6 +34,10 @@ toggle() {
 	else
 		setMode 1
 	fi
+	if [ -n "$1" ]
+	then
+		sleep $1
+	fi
 }
 
 
@@ -64,14 +68,15 @@ helpPage() {
 cat << EOF
 $0 <subcommand>
 
- on		Set the keyboard to always on
- off		Set the keyboard to activate on
-		pen or touch input
- disable	Fully disable the keyboard
- toggle		Toggle the keyboard between
-		on and off
- status		Show keyboard status
- help		Show this page
+ on				Set the keyboard to always on
+ off			Set the keyboard to activate on
+				pen or touch input
+ disable		Fully disable the keyboard
+ toggle	<sleep>	Toggle the keyboard between
+				on and off, sleep <sleep> seconds
+				before exiting
+ status			Show keyboard status
+ help			Show this page
 EOF
 }
 
@@ -90,7 +95,7 @@ main() {
 			;;
 
 		"toggle")
-			toggle
+			toggle $2
 			;;
 
 		"status")
