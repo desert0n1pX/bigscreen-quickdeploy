@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Bigscreen
+Description=A Breeze Based Bigscreen Splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes//bigscreen
+ScriptFile=/usr/share/plymouth/themes//bigscreen/bigscreen.script
