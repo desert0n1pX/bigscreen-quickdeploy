@@ -42,7 +42,7 @@ There are a few ways to perform an installation:
 ## Creating an Image
 
 ### Using Docker to create an image
-> Note: Docker seems to have issues when using `losetup`. Before running the docker image you should note down all loopback devices, you can do this with `losetup -l`. To clean up from a failed build attempt, remove any images (`rm img*`) and any mountpoints if they still exist (`rm mnt*`). You should then detach any new loopback devices (`losetup -d /dev/loopX`). You can again find current loopback devices with `losetup -l`.
+> Note: Docker seems to have issues when using `losetup`. Before running the docker image you should note down all loopback devices, you can do this with `losetup -l`. The container should handle this type of failure, but in the case that it doesn't, you can clean up from a failed build attempt with the following: Remove any images (`rm img*`) and any mountpoints if they still exist (`rm mnt*`). You should then detach any ***new*** loopback devices (`losetup -d /dev/loopX`). You can again find current loopback devices with `losetup -l`.
 
 #### Building the build environment
 Docker is provided here as a means of allowing this script to be run across Linux distributions. A `Dockerfile` is provided here to allow the quick setup of an Archlinux-based environment. To build the docker image you can run the following command in this directory:

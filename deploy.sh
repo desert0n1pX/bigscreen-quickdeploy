@@ -20,14 +20,14 @@ STUPID_UNIX=false
 USER=boxuser
 
 ### No touch these variables
-__MOUNTPOINT="mnt-$(uuidgen)"
-__STEPS=0
-__STEP_CURR=0
-__TMP_IMG="img-$(uuidgen)"
-__ROOT="none"
-__EFI="none"
-__PART2_UUID="none"
 __CONFIG=""
+__EFI="none"
+__MOUNTPOINT="mnt-$(uuidgen)"
+__PART2_UUID="none"
+__ROOT="none"
+__STEP_CURR=0
+__STEPS=0
+__TMP_IMG="img-$(uuidgen)"
 
 #
 # Register a step
@@ -414,7 +414,7 @@ setupImage() {
     # Create Image
     truncate -s "${2}" "${1}" 
     # Attach image
-    losetup -f --show "${1}" # prints dev location
+    losetup -f --show "${1}" || handleLoError # prints dev location
 }
 
 # Partition Device
@@ -450,7 +450,7 @@ EOF
 # Return: None
 registerStep
 formatDevice(){
-    mkfs.fat -F 32 -n "EFI_SYSTEM" "${1}" > /dev/null
+    mkfs.fat -F 32 -n "EFI_SYSTEM" "${1}" > /dev/null 
     mkfs.ext4 -L "This Box" "${2}" > /dev/null
     __PART2_UUID="$(blkid ${2} -o export | awk 'BEGIN { FS="=" } ; { if ( $1=="UUID" ) print $2 }')" 
 }
@@ -647,7 +647,18 @@ convertImage() {
     qemu-img convert -f raw "${1}" -O "${2}" "${3}"
 }
 
+handleLoError() {
+    if [ "$DEVICE" != image ]
+    then
+        losetup -d "$DEVICE"
+    fi
 
+    rm -rf "$__TMP_IMG"
+
+    echo "An error occured. Some cleanup performed. Please try again..."
+
+    exit 254
+}
 
 # Extra steps
 registerStep # Zero unused sectors
@@ -685,7 +696,7 @@ main () {
     partitionDevice "${DEVICE}" "${EFI_SIZE}"
 
     incrementStep "Formatting"
-    formatDevice "$__EFI" "$__ROOT"
+    formatDevice "$__EFI" "$__ROOT" || handleLoError
 
     incrementStep "Mounting"
     mountDevice "$__EFI" "$__ROOT" "$__MOUNTPOINT"
