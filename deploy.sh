@@ -164,6 +164,12 @@ processArgs() {
             shift
             ;;
             
+            -v|--verbose)
+            shift
+            set -x
+            echo DEBUG ENABLED
+            ;;
+
             -x|--expand)
             shift
             EXPAND="$1"
@@ -245,6 +251,15 @@ setConfig() {
 
         STUPID_UNIX)
         STUPID_UNIX="$2"
+        ;;
+
+
+        VERBOSE)
+        if [ "$2" = true ]
+        then
+            set -x
+            echo DEBUG ENABLED
+        fi
         ;;
 
         *)
@@ -372,6 +387,7 @@ Options:
      --stupid-unix          Use a shorter mountpoint name
  -t, --path <path>          Path to the mediabox directory
  -u, --user <username>      Primary username
+ -v, --verbose              Be VERY verbose
  -x, --expand [+]<size>     Grow image to/by size
 EOF
 }
@@ -647,6 +663,10 @@ convertImage() {
     qemu-img convert -f raw "${1}" -O "${2}" "${3}"
 }
 
+# Handle expected errors and clean up
+#
+# Arg*: None
+# Return none
 handleLoError() {
     if [ "$DEVICE" != image ]
     then
@@ -655,7 +675,7 @@ handleLoError() {
 
     rm -rf "$__TMP_IMG"
 
-    echo "An error occured. Some cleanup performed. Please try again..."
+    echo "An error occured. Some cleanup performed. Please try again..." 1>&2
 
     exit 254
 }
