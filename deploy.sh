@@ -711,7 +711,7 @@ main () {
     if [ "${NO_ZERO}" = "false" ]
     then
         incrementStep "Zero unused sectors"
-        bash "${SOURCE}/mediabox/install-scripts/zero-volume.sh" "$SOURCE" "$DEVICE"
+        bash "${SOURCE}/mediabox/install-scripts/zero-volume.sh" "$SOURCE" "$__ROOT"
     else
         incrementStep "Zero unused sectors (Skipped)"
     fi
