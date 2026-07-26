@@ -466,7 +466,8 @@ installSystem() {
 
     arch-chroot "${1}" pacman -Sy --noconfirm  --asdeps $(cat "${SOURCE}/mediabox/config/non-default-dependancies.list")
     arch-chroot "${1}" pacman -Sy --noconfirm           $(cat "${SOURCE}/mediabox/config/additional-packages.list")
-    arch-chroot "${1}" pacman -Scc --noconfirm
+    rm -rf "${1}/var/cache/pacman/pkg/download-"* || echo "No cached folders to delete..."
+    yes | arch-chroot "${1}" pacman -Scc
 }
 
 # Configure System
