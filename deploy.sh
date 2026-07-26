@@ -641,7 +641,7 @@ registerStep # Finalize image
 
 main () {
     incrementStep "Checking scripts dependancies"
-    checkDep mkfs.fat mkfs.ext4 lsof qemu-img arch-chroot pacstrap truncate losetup awk partprobe sfdisk genfstab sed
+    checkDep arch-chroot awk genfstab losetup magick lsof mkfs.ext4 mkfs.fat pacstrap partprobe qemu-img sed sfdisk truncate
 
     processArgs $@
     if [ -n "$__CONFIG" ]
