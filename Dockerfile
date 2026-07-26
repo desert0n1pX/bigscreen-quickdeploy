@@ -2,7 +2,7 @@ FROM archlinux:latest
 
 WORKDIR /build
 
-RUN pacman -Syy --noconfirm core/diffutils core/dosfstools core/make core/patch extra/wget core/which extra/arch-install-scripts extra/imagemagick extra/librsvg extra/lsof extra/parted extra/qemu-img
+RUN pacman -Syy --noconfirm core/diffutils core/dosfstools core/gcc core/make core/patch extra/wget core/which extra/arch-install-scripts extra/imagemagick extra/librsvg extra/lsof extra/parted extra/qemu-img
 
 RUN mkdir -p /opt/bigscreen-quickdeploy/mediabox
 
