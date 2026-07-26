@@ -4,19 +4,20 @@ set -e
 
 CONV_TYPE="none"
 DEVICE="image"
-MODE="image"
 EFI_SIZE=512M
 EXPAND="no"
-LOCALE="en_US.UTF-8 UTF-8"
-LANG="en_US.UTF-8"
 HOSTNAME=mediabox
 IMG_NAME=plasmabigscreen.img
-PASSWD=plasma
 IMG_SIZE=10G
-USER=boxuser
+LANG="en_US.UTF-8"
+LOCALE="en_US.UTF-8 UTF-8"
+MODE="image"
+NO_ZERO=false
+PASSWD=plasma
 SKIP=false
-STUPID_UNIX=false
 SOURCE="."
+STUPID_UNIX=false
+USER=boxuser
 
 ### No touch these variables
 __MOUNTPOINT="mnt-$(uuidgen)"
@@ -135,6 +136,11 @@ processArgs() {
             PASSWD="$__PASS1"
             ;;
             
+            -r|--no-zero)
+            shift
+            NO_ZERO=true
+            ;;
+            
             -s|--size)
             shift
             IMG_SIZE="$1"
@@ -231,6 +237,10 @@ setConfig() {
 
         SOURCE)
         SOURCE="$2"
+        ;;
+
+        NO_ZERO)
+        NO_ZERO="$2"
         ;;
 
         STUPID_UNIX)
@@ -356,6 +366,8 @@ Options:
  -o, --out <file>           Save the image as this file
  -p, --password <password>  Password for user and root
      --password-stdin       Read password from stdin
+ -r, --no-zero              Don't zero unallocated sectors, reccomended for
+                            physical devices
  -s, --size <size>          Image size in bytes or unit format like 10G
      --stupid-unix          Use a shorter mountpoint name
  -t, --path <path>          Path to the mediabox directory
@@ -638,6 +650,7 @@ convertImage() {
 
 
 # Extra steps
+registerStep # Zero unused sectors
 registerStep # Finalize image
 
 main () {
@@ -694,6 +707,14 @@ main () {
 
     incrementStep "Unmounting system"
     unmountInstall "$__MOUNTPOINT"
+
+    if [ "${NO_ZERO}" = "false" ]
+    then
+        incrementStep "Zero unused sectors"
+        bash "${SOURCE}/mediabox/install-scripts/zero-volume.sh" "$SOURCE" "$DEVICE"
+    else
+        incrementStep "Zero unused sectors (Skipped)"
+    fi
 
     if [ "${MODE}" = "image" ]
     then

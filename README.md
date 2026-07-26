@@ -114,17 +114,17 @@ git clone https://github.com/desert0n1pX/bigscreen-quickdeploy.git
 ```
 
 #### Installing
-You can now enter the repo and use the script's `--device` argument or config entry to specify the device you want to install to. It might look something like this:
+You can now enter the repo and use the script's `--device` argument or config entry to specify the device you want to install to. You should also use the `-r` or `--no-zero` argument. It might look something like this:
 
 ```
-sh deploy.sh -d /dev/sda
+sh deploy.sh -r -d /dev/sda
 ```
 
 or
 
 
 ```
-sh deploy.sh -d /dev/nvme0n1
+sh deploy.sh -r -d /dev/nvme0n1
 ```
 
 ## After Installation Notes
