@@ -71,7 +71,7 @@ If you have an existing arch system you can use it to build a ready-to-flash Arc
 Make sure you have the following packages:
 
 ```
-core/which core/dosfstools extra/lsof extra/imagemagick extra/parted extra/qemu-img extra/arch-install-scripts
+core/which core/dosfstools extra/lsof extra/imagemagick extra/librsvg extra/parted extra/qemu-img extra/arch-install-scripts
 ```
 
 #### Making the final image
@@ -105,7 +105,7 @@ You should obtain an arch-iso image and boot it with the new system. For more in
 
 After booting the iso you should install the dependencies:
 ```
-root@archiso ~# pacman -Syy git imagemagick lsof qemu-img
+root@archiso ~# pacman -Syy git imagemagick lsof librsvg qemu-img
 ```
 
 You can then clone this repo:

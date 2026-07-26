@@ -8,7 +8,7 @@ COPY deploy.sh /opt/bigscreen-quickdeploy/
 
 COPY mediabox /opt/bigscreen-quickdeploy/mediabox
 
-RUN pacman -Syy --noconfirm core/diffutils core/dosfstools core/patch core/which extra/arch-install-scripts extra/imagemagick extra/lsof extra/parted extra/qemu-img
+RUN pacman -Syy --noconfirm core/diffutils core/dosfstools core/patch core/which extra/arch-install-scripts extra/imagemagick extra/librsvg extra/lsof extra/parted extra/qemu-img
 
 COPY pacman.conf /etc/pacman.conf
 
