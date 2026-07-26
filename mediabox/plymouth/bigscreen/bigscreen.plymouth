@@ -1,6 +1,6 @@
 [Plymouth Theme]
 Name=Bigscreen
-Description=A Breeze Based Bigscreen Splash
+Description=A Splash For Plasma Bigscreen Based On Breeze
 ModuleName=script
 
 [script]

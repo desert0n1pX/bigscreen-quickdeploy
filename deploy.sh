@@ -462,7 +462,7 @@ mountDevice() {
 registerStep
 installSystem() {
     pacstrap -K "${1}" $(cat "${SOURCE}/mediabox/config/core-packages.list")
-    cat "${SOURCE}/mediabox/scripts/chaotic.sh" | arch-chroot "${1}" bash
+    cat "${SOURCE}/mediabox/install-scripts/chaotic.sh" | arch-chroot "${1}" bash
 
     arch-chroot "${1}" pacman -Sy --noconfirm  --asdeps $(cat "${SOURCE}/mediabox/config/non-default-dependancies.list")
     arch-chroot "${1}" pacman -Sy --noconfirm           $(cat "${SOURCE}/mediabox/config/additional-packages.list")
@@ -537,6 +537,10 @@ configCustom() {
 
     # Enable custom services
     arch-chroot "${1}" systemctl enable auto-storage-setup.service input-remapper-loader.service
+
+    # Run other install scripts
+    bash "${SOURCE}/mediabox/install-scripts/generate-plymouth-theme.sh" "${SOURCE}" "${1}"
+    arch-chroot "${1}" plymouth-set-default-theme bigscreen
 }
 
 
