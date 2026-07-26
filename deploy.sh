@@ -462,11 +462,12 @@ mountDevice() {
 registerStep
 installSystem() {
     pacstrap -K "${1}" $(cat "${SOURCE}/mediabox/config/core-packages.list")
-    cat "${SOURCE}/mediabox/scripts/chaotic.sh" | arch-chroot "${1}" bash
+    cat "${SOURCE}/mediabox/install-scripts/chaotic.sh" | arch-chroot "${1}" bash
 
     arch-chroot "${1}" pacman -Sy --noconfirm  --asdeps $(cat "${SOURCE}/mediabox/config/non-default-dependancies.list")
     arch-chroot "${1}" pacman -Sy --noconfirm           $(cat "${SOURCE}/mediabox/config/additional-packages.list")
-    arch-chroot "${1}" pacman -Scc --noconfirm
+    rm -rf "${1}/var/cache/pacman/pkg/download-"* || echo "No cached folders to delete..."
+    yes | arch-chroot "${1}" pacman -Scc
 }
 
 # Configure System
@@ -537,6 +538,10 @@ configCustom() {
 
     # Enable custom services
     arch-chroot "${1}" systemctl enable auto-storage-setup.service input-remapper-loader.service
+
+    # Run other install scripts
+    bash "${SOURCE}/mediabox/install-scripts/generate-plymouth-theme.sh" "${SOURCE}" "${1}"
+    arch-chroot "${1}" plymouth-set-default-theme bigscreen
 }
 
 
@@ -637,7 +642,7 @@ registerStep # Finalize image
 
 main () {
     incrementStep "Checking scripts dependancies"
-    checkDep mkfs.fat mkfs.ext4 lsof qemu-img arch-chroot pacstrap truncate losetup awk partprobe sfdisk genfstab sed
+    checkDep arch-chroot awk genfstab losetup magick lsof mkfs.ext4 mkfs.fat pacstrap partprobe qemu-img sed sfdisk truncate
 
     processArgs $@
     if [ -n "$__CONFIG" ]
