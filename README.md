@@ -71,7 +71,7 @@ If you have an existing arch system you can use it to build a ready-to-flash Arc
 Make sure you have the following packages:
 
 ```
-core/which core/dosfstools extra/lsof extra/imagemagick extra/librsvg extra/parted extra/qemu-img extra/arch-install-scripts
+core/dosfstools core/which extra/arch-install-scripts extra/imagemagick extra/librsvg extra/lsof extra/parted extra/qemu-img extra/wget
 ```
 
 #### Making the final image

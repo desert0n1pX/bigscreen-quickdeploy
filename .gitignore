@@ -3,3 +3,4 @@ mnt*
 *.img
 
 mediabox/plymouth/image-generator/output
+lib
