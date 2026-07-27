@@ -786,4 +786,11 @@ main () {
         mv "$__TMP_IMG" "$IMG_NAME"
     fi
 }
-main $@
+
+
+if main $@
+then
+    echo "Build success"
+else
+    handleLoError
+fi
