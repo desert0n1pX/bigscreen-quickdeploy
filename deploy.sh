@@ -2,31 +2,34 @@
 
 set -e
 
+trap 'cleanAftrErr' ERR
+
 CONV_TYPE="none"
 DEVICE="image"
-MODE="image"
 EFI_SIZE=512M
 EXPAND="no"
-LOCALE="en_US.UTF-8 UTF-8"
-LANG="en_US.UTF-8"
 HOSTNAME=mediabox
 IMG_NAME=plasmabigscreen.img
-PASSWD=plasma
 IMG_SIZE=10G
-USER=boxuser
+LANG="en_US.UTF-8"
+LOCALE="en_US.UTF-8 UTF-8"
+MODE="image"
+NO_ZERO=false
+PASSWD=plasma
 SKIP=false
-STUPID_UNIX=false
 SOURCE="."
+STUPID_UNIX=false
+USER=boxuser
 
 ### No touch these variables
-__MOUNTPOINT="mnt-$(uuidgen)"
-__STEPS=0
-__STEP_CURR=0
-__TMP_IMG="img-$(uuidgen)"
-__ROOT="none"
-__EFI="none"
-__PART2_UUID="none"
 __CONFIG=""
+__EFI="none"
+__MOUNTPOINT="mnt-$(uuidgen)"
+__PART2_UUID="none"
+__ROOT="none"
+__STEP_CURR=0
+__STEPS=0
+__TMP_IMG="img-$(uuidgen)"
 
 #
 # Register a step
@@ -135,6 +138,11 @@ processArgs() {
             PASSWD="$__PASS1"
             ;;
             
+            -r|--no-zero)
+            shift
+            NO_ZERO=true
+            ;;
+            
             -s|--size)
             shift
             IMG_SIZE="$1"
@@ -158,6 +166,12 @@ processArgs() {
             shift
             ;;
             
+            -v|--verbose)
+            shift
+            set -x
+            echo DEBUG ENABLED
+            ;;
+
             -x|--expand)
             shift
             EXPAND="$1"
@@ -233,8 +247,21 @@ setConfig() {
         SOURCE="$2"
         ;;
 
+        NO_ZERO)
+        NO_ZERO="$2"
+        ;;
+
         STUPID_UNIX)
         STUPID_UNIX="$2"
+        ;;
+
+
+        VERBOSE)
+        if [ "$2" = true ]
+        then
+            set -x
+            echo DEBUG ENABLED
+        fi
         ;;
 
         *)
@@ -356,10 +383,13 @@ Options:
  -o, --out <file>           Save the image as this file
  -p, --password <password>  Password for user and root
      --password-stdin       Read password from stdin
+ -r, --no-zero              Don't zero unallocated sectors, reccomended for
+                            physical devices
  -s, --size <size>          Image size in bytes or unit format like 10G
      --stupid-unix          Use a shorter mountpoint name
  -t, --path <path>          Path to the mediabox directory
  -u, --user <username>      Primary username
+ -v, --verbose              Be VERY verbose
  -x, --expand [+]<size>     Grow image to/by size
 EOF
 }
@@ -438,7 +468,7 @@ EOF
 # Return: None
 registerStep
 formatDevice(){
-    mkfs.fat -F 32 -n "EFI_SYSTEM" "${1}" > /dev/null
+    mkfs.fat -F 32 -n "EFI_SYSTEM" "${1}" > /dev/null 
     mkfs.ext4 -L "This Box" "${2}" > /dev/null
     __PART2_UUID="$(blkid ${2} -o export | awk 'BEGIN { FS="=" } ; { if ( $1=="UUID" ) print $2 }')" 
 }
@@ -580,6 +610,9 @@ prepareBoot() {
     mkdir "${1}/efi/EFI/PlasmaBigscreen" "${1}/efi/EFI/BOOT" -p
     arch-chroot "${1}" mkinitcpio -P
     cp "${1}/efi/EFI/PlasmaBigscreen/arch-linux-lts.efi" "${1}/efi/EFI/BOOT/BOOTX64.EFI"
+
+    echo "Removing unneeded efi images"
+    shred -n 0 -z --remove=unlink "${1}/efi/EFI/PlasmaBigscreen/arch-linux-lts.efi" "${1}/efi/EFI/PlasmaBigscreen/arch-linux-lts-fallback.efi"
 }
 
 # Unmount
@@ -635,14 +668,33 @@ convertImage() {
     qemu-img convert -f raw "${1}" -O "${2}" "${3}"
 }
 
+# Handle expected errors and clean up
+#
+# Arg*: None
+# Return none
+cleanAftrErr() {
 
+    unmountInstall "$__MOUNTPOINT" || echo "Tried to unmount but it didnt seem to work"
+
+    if [ "$DEVICE" != image ]
+    then
+        losetup -d "$DEVICE"
+    fi
+
+    rm -rf "$__TMP_IMG" "$__MOUNTPOINT"
+
+    echo "An error occured. Some cleanup performed. Please try again..." 1>&2
+
+    exit 254
+}
 
 # Extra steps
+registerStep # Zero unused sectors
 registerStep # Finalize image
 
 main () {
     incrementStep "Checking scripts dependancies"
-    checkDep arch-chroot awk genfstab losetup magick lsof mkfs.ext4 mkfs.fat pacstrap partprobe qemu-img sed sfdisk truncate
+    checkDep arch-chroot awk genfstab losetup magick lsof mkfs.ext4 mkfs.fat pacstrap partprobe qemu-img sed sfdisk truncate wget
 
     processArgs $@
     if [ -n "$__CONFIG" ]
@@ -663,37 +715,45 @@ main () {
     if [ "${MODE}" = "image" ]
     then
         incrementStep "Setup Image"
-        DEVICE=$(setupImage "${__TMP_IMG}" "${IMG_SIZE}")
+        DEVICE=$(setupImage "${__TMP_IMG}" "${IMG_SIZE}" || cleanAftrErr)
     else
         incrementStep "Setup Image (Skipped)"
     fi
     
     incrementStep "Partitioning"
-    partitionDevice "${DEVICE}" "${EFI_SIZE}"
+    partitionDevice "${DEVICE}" "${EFI_SIZE}" || cleanAftrErr
 
     incrementStep "Formatting"
-    formatDevice "$__EFI" "$__ROOT"
+    formatDevice "$__EFI" "$__ROOT" || cleanAftrErr
 
     incrementStep "Mounting"
-    mountDevice "$__EFI" "$__ROOT" "$__MOUNTPOINT"
+    mountDevice "$__EFI" "$__ROOT" "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Installing all packages"
-    installSystem "$__MOUNTPOINT"
+    installSystem "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Configuring system"
-    configSystem "$__MOUNTPOINT"
+    configSystem "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Configuring Custom Scripts"
-    configCustom "$__MOUNTPOINT"
+    configCustom "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Configuring kernel and boot process"
-    configKernel "$__MOUNTPOINT" "$__PART2_UUID"
+    configKernel "$__MOUNTPOINT" "$__PART2_UUID" || cleanAftrErr
 
     incrementStep "Preparing for first boot"
-    prepareBoot "$__MOUNTPOINT"
+    prepareBoot "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Unmounting system"
     unmountInstall "$__MOUNTPOINT"
+
+    if [ "${NO_ZERO}" = "false" ]
+    then
+        incrementStep "Zero unused sectors"
+        bash "${SOURCE}/mediabox/install-scripts/zero-volume.sh" "$SOURCE" "$__ROOT" || cleanAftrErr
+    else
+        incrementStep "Zero unused sectors (Skipped)"
+    fi
 
     if [ "${MODE}" = "image" ]
     then
@@ -729,4 +789,6 @@ main () {
         mv "$__TMP_IMG" "$IMG_NAME"
     fi
 }
+
+
 main $@

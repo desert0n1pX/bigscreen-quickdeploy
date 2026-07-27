@@ -42,13 +42,23 @@ There are a few ways to perform an installation:
 ## Creating an Image
 
 ### Using Docker to create an image
-> Note: Docker seems to have issues when using `losetup`. Before running the docker image you should note down all loopback devices, you can do this with `losetup -l`. To clean up from a failed build attempt, remove any images (`rm img*`) and any mountpoints if they still exist (`rm mnt*`). You should then detach any new loopback devices (`losetup -d /dev/loopX`). You can again find current loopback devices with `losetup -l`.
+> Note: Docker seems to have issues when using `losetup`. Before running the docker image you should note down all loopback devices, you can do this with `losetup -l`. The container should handle this type of failure, but in the case that it doesn't, you can clean up from a failed build attempt with the following: Remove any images (`rm img*`) and any mountpoints if they still exist (`rm mnt*`). You should then detach any ***new*** loopback devices (`losetup -d /dev/loopX`). You can again find current loopback devices with `losetup -l`.
 
 #### Building the build environment
 Docker is provided here as a means of allowing this script to be run across Linux distributions. A `Dockerfile` is provided here to allow the quick setup of an Archlinux-based environment. To build the docker image you can run the following command in this directory:
 
 ```bash
 docker build -t quickdeploy:local .
+```
+
+### Importing a docker image release
+
+If you would rather import the image than build it yourself, you can find premade images on [the release page](https://github.com/desert0n1pX/bigscreen-quickdeploy/releases).
+
+After downloading the tar archive you can import the image with:
+
+```bash
+docker image load -i /path/to/quickdeploy-docker-v1.1.0.tar
 ```
 
 #### Making the final image
@@ -61,6 +71,12 @@ After the docker image has successfully been made you can now use it to run the 
 docker run --privileged --rm -v .:/build quickdeploy:local
 ```
 
+> Note: If you imported the image the command will look something like this
+
+```bash
+docker run --privileged --rm -v .:/build quickdeploy:v1.1.0
+```
+
 ---
 
 ### Using an existing arch system to create an image
@@ -71,7 +87,7 @@ If you have an existing arch system you can use it to build a ready-to-flash Arc
 Make sure you have the following packages:
 
 ```
-core/which core/dosfstools extra/lsof extra/imagemagick extra/librsvg extra/parted extra/qemu-img extra/arch-install-scripts
+core/dosfstools core/which extra/arch-install-scripts extra/imagemagick extra/librsvg extra/lsof extra/parted extra/qemu-img extra/wget
 ```
 
 #### Making the final image
@@ -114,17 +130,17 @@ git clone https://github.com/desert0n1pX/bigscreen-quickdeploy.git
 ```
 
 #### Installing
-You can now enter the repo and use the script's `--device` argument or config entry to specify the device you want to install to. It might look something like this:
+You can now enter the repo and use the script's `--device` argument or config entry to specify the device you want to install to. You should also use the `-r` or `--no-zero` argument. It might look something like this:
 
 ```
-sh deploy.sh -d /dev/sda
+sh deploy.sh -r -d /dev/sda
 ```
 
 or
 
 
 ```
-sh deploy.sh -d /dev/nvme0n1
+sh deploy.sh -r -d /dev/nvme0n1
 ```
 
 ## After Installation Notes
