@@ -670,6 +670,9 @@ convertImage() {
 # Arg*: None
 # Return none
 handleLoError() {
+
+    unmountInstall "$__MOUNTPOINT" || echo "Tried to unmount but it didnt seem to work"
+
     if [ "$DEVICE" != image ]
     then
         losetup -d "$DEVICE"
