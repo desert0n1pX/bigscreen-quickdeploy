@@ -51,6 +51,16 @@ Docker is provided here as a means of allowing this script to be run across Linu
 docker build -t quickdeploy:local .
 ```
 
+### Importing a docker image release
+
+If you would rather import the image than build it yourself, you can find premade images on [the release page](https://github.com/desert0n1pX/bigscreen-quickdeploy/releases).
+
+After downloading the tar archive you can import the image with:
+
+```bash
+docker image load -i /path/to/quickdeploy-docker-v1.1.0.tar
+```
+
 #### Making the final image
 
 After the docker image has successfully been made you can now use it to run the script to build a ready-to-flash Archlinux image for Plasma Bigscreen. The container will look for a config file named `quickdeploy-docker.conf` in the volume mounted at `/build`. In the command below the current directory `.` is specified.
@@ -59,6 +69,12 @@ After the docker image has successfully been made you can now use it to run the 
 
 ```bash
 docker run --privileged --rm -v .:/build quickdeploy:local
+```
+
+> Note: If you imported the image the command will look something like this
+
+```bash
+docker run --privileged --rm -v .:/build quickdeploy:v1.1.0
 ```
 
 ---
