@@ -610,6 +610,9 @@ prepareBoot() {
     mkdir "${1}/efi/EFI/PlasmaBigscreen" "${1}/efi/EFI/BOOT" -p
     arch-chroot "${1}" mkinitcpio -P
     cp "${1}/efi/EFI/PlasmaBigscreen/arch-linux-lts.efi" "${1}/efi/EFI/BOOT/BOOTX64.EFI"
+
+    echo "Removing unneeded efi images"
+    shred -n 0 -z --remove=unlink "${1}/efi/EFI/PlasmaBigscreen/arch-linux-lts.efi" "${1}/efi/EFI/PlasmaBigscreen/arch-linux-lts-fallback.efi"
 }
 
 # Unmount
