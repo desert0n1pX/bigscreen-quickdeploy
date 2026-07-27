@@ -2,7 +2,7 @@
 
 set -e
 
-trap 'handleLoError' ERR
+trap 'cleanAftrErr' ERR
 
 CONV_TYPE="none"
 DEVICE="image"
@@ -669,7 +669,7 @@ convertImage() {
 #
 # Arg*: None
 # Return none
-handleLoError() {
+cleanAftrErr() {
 
     unmountInstall "$__MOUNTPOINT" || echo "Tried to unmount but it didnt seem to work"
 
@@ -712,34 +712,34 @@ main () {
     if [ "${MODE}" = "image" ]
     then
         incrementStep "Setup Image"
-        DEVICE=$(setupImage "${__TMP_IMG}" "${IMG_SIZE}" )
+        DEVICE=$(setupImage "${__TMP_IMG}" "${IMG_SIZE}" || cleanAftrErr)
     else
         incrementStep "Setup Image (Skipped)"
     fi
     
     incrementStep "Partitioning"
-    partitionDevice "${DEVICE}" "${EFI_SIZE}"
+    partitionDevice "${DEVICE}" "${EFI_SIZE}" || cleanAftrErr
 
     incrementStep "Formatting"
-    formatDevice "$__EFI" "$__ROOT"
+    formatDevice "$__EFI" "$__ROOT" || cleanAftrErr
 
     incrementStep "Mounting"
-    mountDevice "$__EFI" "$__ROOT" "$__MOUNTPOINT"
+    mountDevice "$__EFI" "$__ROOT" "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Installing all packages"
-    installSystem "$__MOUNTPOINT"
+    installSystem "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Configuring system"
-    configSystem "$__MOUNTPOINT"
+    configSystem "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Configuring Custom Scripts"
-    configCustom "$__MOUNTPOINT"
+    configCustom "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Configuring kernel and boot process"
-    configKernel "$__MOUNTPOINT" "$__PART2_UUID"
+    configKernel "$__MOUNTPOINT" "$__PART2_UUID" || cleanAftrErr
 
     incrementStep "Preparing for first boot"
-    prepareBoot "$__MOUNTPOINT"
+    prepareBoot "$__MOUNTPOINT" || cleanAftrErr
 
     incrementStep "Unmounting system"
     unmountInstall "$__MOUNTPOINT"
@@ -747,7 +747,7 @@ main () {
     if [ "${NO_ZERO}" = "false" ]
     then
         incrementStep "Zero unused sectors"
-        bash "${SOURCE}/mediabox/install-scripts/zero-volume.sh" "$SOURCE" "$__ROOT"
+        bash "${SOURCE}/mediabox/install-scripts/zero-volume.sh" "$SOURCE" "$__ROOT" || cleanAftrErr
     else
         incrementStep "Zero unused sectors (Skipped)"
     fi
@@ -788,9 +788,4 @@ main () {
 }
 
 
-if main $@
-then
-    echo "Build success"
-else
-    handleLoError
-fi
+main $@
