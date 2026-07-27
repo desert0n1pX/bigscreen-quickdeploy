@@ -2,6 +2,8 @@
 
 set -e
 
+trap 'handleLoError' ERR
+
 CONV_TYPE="none"
 DEVICE="image"
 EFI_SIZE=512M
@@ -430,7 +432,7 @@ setupImage() {
     # Create Image
     truncate -s "${2}" "${1}" 
     # Attach image
-    losetup -f --show "${1}" || handleLoError # prints dev location
+    losetup -f --show "${1}" # prints dev location
 }
 
 # Partition Device
@@ -673,7 +675,7 @@ handleLoError() {
         losetup -d "$DEVICE"
     fi
 
-    rm -rf "$__TMP_IMG"
+    rm -rf "$__TMP_IMG" "$__MOUNTPOINT"
 
     echo "An error occured. Some cleanup performed. Please try again..." 1>&2
 
@@ -707,7 +709,7 @@ main () {
     if [ "${MODE}" = "image" ]
     then
         incrementStep "Setup Image"
-        DEVICE=$(setupImage "${__TMP_IMG}" "${IMG_SIZE}")
+        DEVICE=$(setupImage "${__TMP_IMG}" "${IMG_SIZE}" )
     else
         incrementStep "Setup Image (Skipped)"
     fi
@@ -716,7 +718,7 @@ main () {
     partitionDevice "${DEVICE}" "${EFI_SIZE}"
 
     incrementStep "Formatting"
-    formatDevice "$__EFI" "$__ROOT" || handleLoError
+    formatDevice "$__EFI" "$__ROOT"
 
     incrementStep "Mounting"
     mountDevice "$__EFI" "$__ROOT" "$__MOUNTPOINT"
