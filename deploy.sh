@@ -676,7 +676,7 @@ cleanAftrErr() {
 
     unmountInstall "$__MOUNTPOINT" || echo "Tried to unmount but it didnt seem to work"
 
-    if [ "$DEVICE" != image ]
+    if [ "$DEVICE" != image ] && [ "$MODE" = image ]
     then
         losetup -d "$DEVICE"
     fi

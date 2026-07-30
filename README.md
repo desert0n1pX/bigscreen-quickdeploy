@@ -121,7 +121,7 @@ You should obtain an arch-iso image and boot it with the new system. For more in
 
 After booting the iso you should install the dependencies:
 ```
-root@archiso ~# pacman -Syy git imagemagick lsof librsvg qemu-img
+root@archiso ~# pacman -Syy git imagemagick lsof librsvg qemu-img wget
 ```
 
 You can then clone this repo:
